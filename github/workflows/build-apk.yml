@@ -1,0 +1,35 @@
+
+name: Construire Mon Garage Widget
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'MonGarageWidgetAndroid.zip'
+      - '.github/workflows/build-apk.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extraire le projet
+        run: unzip -o MonGarageWidgetAndroid.zip -d extracted
+
+      - name: Construire le fichier APK
+        run: gradle -p extracted/MonGarageWidgetPackage/MonGarageWidgetAndroid assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mon-garage-widget-apk
+          path: extracted/MonGarageWidgetPackage/MonGarageWidgetAndroid/app/build/outputs/apk/debug/app-debug.apk
